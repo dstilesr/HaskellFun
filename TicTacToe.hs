@@ -44,19 +44,16 @@ diag1 :: [Pos]
 diag2 :: [Pos]
 
 col1 = [(2,2), (2,4), (2,6)]
-col2 = [(4,2), (4,4), (4,6)]
-col3 = [(6,2), (6,4), (6,6)]
+col2 = [(a+2,b) | (a,b) <- col1]
+col3 = [(a+4,b) | (a,b) <- col1]
 row1 = map switch col1
 row2 = map switch col2
 row3 = map switch col3
-
 diag1 = [(2*i, 2*i)|i <- [1..3]]
 diag2 = [(2,6), (4,4), (6,2)]
 
--- Posibilidades para ganar
 winMoves :: [[Pos]]
 winMoves = [col1, col2, col3, row1, row2, row3, diag1, diag2]
-
 
 -- Determinar sin un jugador ganó
 wonGame :: [Pos] -> Bool
@@ -76,7 +73,6 @@ failMsg = "Invalid move!\nValid moves:\n\
 turnXs :: ([Pos], [Pos]) -> IO ()
 turnOs :: ([Pos], [Pos]) -> IO ()
 
-
 turnXs (xs,os) = do putStr "X: "
                     newx <- getLine
                     if validInput newx xs os
@@ -94,7 +90,6 @@ turnXs (xs,os) = do putStr "X: "
                                        getLine
                                        showBoard (xs,os)
                                        turnXs (xs, os)
-
 
 turnOs (xs,os) = do putStr "O: "
                     newo <- getLine

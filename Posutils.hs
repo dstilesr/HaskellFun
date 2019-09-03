@@ -1,5 +1,3 @@
-
-
 module Posutils where
 
 -- Funciones y tipo para manejar la pantalla
