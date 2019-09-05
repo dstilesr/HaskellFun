@@ -1,6 +1,7 @@
 module Main where
 import Listutils
 import Posutils
+import System.IO
 
 
 -- Ejecutar una lista de acciones IO
@@ -139,6 +140,7 @@ showOs ps = seqn (map (\p -> writeAt p "o") ps)
 
 -- MAIN
 main :: IO ()
-main = do showBoard ([],[]) 
+main = do hSetBuffering stdout NoBuffering
+          showBoard ([],[]) 
           turnXs ([],[])
 
