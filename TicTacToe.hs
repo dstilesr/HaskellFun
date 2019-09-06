@@ -80,14 +80,11 @@ turnXs (xs,os) = do putStr "X: "
                        then do x <- return (moveToPos newx)
                                showBoard (x:xs, os)
                                if wonGame (x:xs)
-                                 then do winMsg "X"
-                                 else do turnOs (x:xs, os)
+                                 then winMsg "X"
+                                 else turnOs (x:xs, os)
                        else if (length (xs ++ os)) == 9
-                               then do clearScreen
-                                       gotoPoint (1,1)
-                                       putStrLn "Draw!"
-                               else do gotoPoint (1,7)
-                                       putStrLn failMsg
+                               then displayMsg "Draw!"
+                               else do displayMsg failMsg
                                        getLine
                                        showBoard (xs,os)
                                        turnXs (xs, os)
@@ -98,14 +95,11 @@ turnOs (xs,os) = do putStr "O: "
                        then do o <- return (moveToPos newo)
                                showBoard (xs, o:os)
                                if wonGame (o:os)
-                                 then do winMsg "O"
-                                 else do turnXs (xs, o:os)
+                                 then winMsg "O"
+                                 else turnXs (xs, o:os)
                        else if (length (xs ++ os)) == 9
-                               then do clearScreen
-                                       gotoPoint (1,1)
-                                       putStrLn "Draw!"
-                               else do gotoPoint (1,7)
-                                       putStrLn failMsg
+                               then displayMsg "Draw!\n"
+                               else do displayMsg failMsg
                                        getLine
                                        showBoard (xs,os)
                                        turnOs (xs, os)
@@ -136,6 +130,11 @@ showXs ps = seqn (map (\p -> writeAt p "x") ps)
 
 showOs :: [Pos] -> IO ()
 showOs ps = seqn (map (\p -> writeAt p "o") ps)
+
+
+-- Mostrar un mensaje en la 'consola' (bajo el tablero)
+displayMsg :: String -> IO()
+displayMsg = writeAt (1,7)
 
 
 -- MAIN
