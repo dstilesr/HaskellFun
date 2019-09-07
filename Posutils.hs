@@ -16,3 +16,9 @@ writeAt p cs = do gotoPoint p
                   putStr cs
 
 
+-- Ejecutar una lista de acciones IO
+seqn :: [IO a] -> IO ()
+seqn [] = return ()
+seqn (a:as) = do a
+                 seqn as
+
