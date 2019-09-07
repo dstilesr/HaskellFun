@@ -4,12 +4,6 @@ import Posutils
 import System.IO
 
 
--- Ejecutar una lista de acciones IO
-seqn :: [IO a] -> IO ()
-seqn [] = return ()
-seqn (a:as) = do a
-                 seqn as
-
 
 -- Movimientos posibles
 validMoves :: [String]
