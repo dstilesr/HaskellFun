@@ -52,12 +52,10 @@ winMoves = [col1, col2, col3, row1, row2, row3, diag1, diag2]
 
 -- Determinar sin un jugador ganó
 wonGame :: [Pos] -> Bool
-wonGame ps = foldl (||) False verifs
-        where verifs = map (\qs -> containedIn qs ps) winMoves
+wonGame ps = foldl (\b qs -> b || containedIn qs ps) False winMoves
 
 winMsg :: String -> IO ()
-winMsg nm = do gotoPoint (1,7)
-               putStrLn ("Congratulations! Player " ++ nm ++ " wins!")
+winMsg nm = displayMsg ("Congratulations! Player " ++ nm ++ " wins!\n")
                
 failMsg :: String
 failMsg = "Invalid move!\nValid moves:\n\
@@ -78,7 +76,7 @@ turnXs (xs,os) = do displayMsg "X: "
                                  then winMsg "X"
                                  else turnOs (x:xs, os)
                        else if (length (xs ++ os)) == 9
-                               then displayMsg "Draw!"
+                               then displayMsg "Draw!\n"
                                else do displayMsg failMsg
                                        getLine
                                        turnXs (xs, os)
