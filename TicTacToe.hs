@@ -68,11 +68,12 @@ failMsg = "Invalid move!\nValid moves:\n\
 turnXs :: ([Pos], [Pos]) -> IO ()
 turnOs :: ([Pos], [Pos]) -> IO ()
 
-turnXs (xs,os) = do putStr "X: "
+turnXs (xs,os) = do displayMsg "X: "
                     newx <- getLine
                     if validInput newx xs os
                        then do x <- return (moveToPos newx)
-                               showBoard (x:xs, os)
+                               showXs (x:xs)
+                               showOs os
                                if wonGame (x:xs)
                                  then winMsg "X"
                                  else turnOs (x:xs, os)
@@ -80,14 +81,14 @@ turnXs (xs,os) = do putStr "X: "
                                then displayMsg "Draw!"
                                else do displayMsg failMsg
                                        getLine
-                                       showBoard (xs,os)
                                        turnXs (xs, os)
 
-turnOs (xs,os) = do putStr "O: "
+turnOs (xs,os) = do displayMsg "O: "
                     newo <- getLine
                     if validInput newo xs os
                        then do o <- return (moveToPos newo)
-                               showBoard (xs, o:os)
+                               showXs xs
+                               showOs (o:os)
                                if wonGame (o:os)
                                  then winMsg "O"
                                  else turnXs (xs, o:os)
@@ -95,7 +96,6 @@ turnOs (xs,os) = do putStr "O: "
                                then displayMsg "Draw!\n"
                                else do displayMsg failMsg
                                        getLine
-                                       showBoard (xs,os)
                                        turnOs (xs, os)
 
 
@@ -109,13 +109,11 @@ board = [" 1 2 3",
          "3 | | "]
 
 -- Mostrar tablero actual
-showBoard :: ([Pos], [Pos]) -> IO ()
-showBoard (xs,os) = do clearScreen
-                       gotoPoint (1,1)
-                       seqn (map putStrLn board)
-                       showXs xs
-                       showOs os
-                       gotoPoint (1,7)
+showBoard :: IO ()
+showBoard = do clearScreen
+               gotoPoint (1,1)
+               seqn (map putStrLn board)
+               gotoPoint (1,7)
 
 
 -- Mostrar xs u os en el tablero
@@ -128,12 +126,13 @@ showOs ps = seqn (map (\p -> writeAt p "o") ps)
 
 -- Mostrar un mensaje en la 'consola' (bajo el tablero)
 displayMsg :: String -> IO()
-displayMsg = writeAt (1,7)
+displayMsg m = do writeAt (1,7) "\ESC[J"
+                  writeAt (1,7) m
 
 
 -- MAIN
 main :: IO ()
 main = do hSetBuffering stdout NoBuffering
-          showBoard ([],[]) 
+          showBoard
           turnXs ([],[])
 
