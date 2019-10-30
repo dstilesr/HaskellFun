@@ -54,8 +54,9 @@ winMoves = [col1, col2, col3, row1, row2, row3, diag1, diag2]
 wonGame :: [Pos] -> Bool
 wonGame ps = foldl (\b qs -> b || containedIn qs ps) False winMoves
 
-winMsg :: String -> IO ()
-winMsg nm = displayMsg ("Congratulations! Player " ++ nm ++ " wins!\n")
+winMsg :: Int -> IO ()
+winMsg nm = displayMsg ("Congratulations! Player " ++ pl ++ " wins!\n")
+          where pl = if mod nm 2 == 0 then "X" else "O"
                
 failMsg :: String
 failMsg = "Invalid move!\nValid moves:\n\
@@ -63,38 +64,37 @@ failMsg = "Invalid move!\nValid moves:\n\
 \Do not choose squares that are already taken!"
 
 -- Turnos
-turnXs :: ([Pos], [Pos]) -> IO ()
-turnOs :: ([Pos], [Pos]) -> IO ()
+turnPrompt :: Int -> IO ()
+turnPrompt n = if (mod n 2) == 0 
+               then displayMsg "X: "
+               else displayMsg "O: "
 
-turnXs (xs,os) = do displayMsg "X: "
-                    newx <- getLine
-                    if validInput newx xs os
-                       then do x <- return (moveToPos newx)
-                               showXs (x:xs)
-                               showOs os
-                               if wonGame (x:xs)
-                                 then winMsg "X"
-                                 else turnOs (x:xs, os)
-                       else if (length (xs ++ os)) == 9
-                               then displayMsg "Draw!\n"
-                               else do displayMsg failMsg
-                                       getLine
-                                       turnXs (xs, os)
+addMove :: Int -> Pos -> ([Pos], [Pos]) -> ([Pos], [Pos])
+addMove n p (xs, os) = if mod n 2 == 0 then (p:xs, os) else (xs, p:os)
 
-turnOs (xs,os) = do displayMsg "O: "
-                    newo <- getLine
-                    if validInput newo xs os
-                       then do o <- return (moveToPos newo)
-                               showXs xs
-                               showOs (o:os)
-                               if wonGame (o:os)
-                                 then winMsg "O"
-                                 else turnXs (xs, o:os)
-                       else if (length (xs ++ os)) == 9
-                               then displayMsg "Draw!\n"
-                               else do displayMsg failMsg
-                                       getLine
-                                       turnOs (xs, os)
+
+checkWin :: Int -> ([Pos], [Pos]) -> Bool
+checkWin n (xs, os) = wonGame ms
+                  where ms = if mod n 2 == 0 then xs else os
+
+nextTurn :: Int -> ([Pos], [Pos]) -> IO ()
+nextTurn n (xs, os) = do
+                      turnPrompt n
+                      newMove <- getLine
+                      if validInput newMove xs os
+                      then do
+                           p <- return (moveToPos newMove)
+                           (nxs, nos) <- return (addMove n p (xs, os))
+                           placeChars 'x' nxs
+                           placeChars 'o' nos
+                           if checkWin n (nxs, nos)
+                           then winMsg n
+                           else nextTurn (n + 1) (nxs, nos)
+                      else if (length (xs ++ os)) == 9
+                           then displayMsg "Draw!\n"
+                           else do displayMsg failMsg
+                                   getLine
+                                   nextTurn n (xs, os)
 
 
 -- Tablero inicial
@@ -115,11 +115,8 @@ showBoard = do clearScreen
 
 
 -- Mostrar xs u os en el tablero
-showXs :: [Pos] -> IO ()
-showXs ps = seqn (map (\p -> writeAt p "x") ps)
-
-showOs :: [Pos] -> IO ()
-showOs ps = seqn (map (\p -> writeAt p "o") ps)
+placeChars :: Char -> [Pos] -> IO ()
+placeChars c ps = seqn (map (\p -> writeAt p [c]) ps) 
 
 
 -- Mostrar un mensaje en la 'consola' (bajo el tablero)
@@ -132,5 +129,5 @@ displayMsg m = do writeAt (1,7) "\ESC[J"
 main :: IO ()
 main = do hSetBuffering stdout NoBuffering
           showBoard
-          turnXs ([],[])
+          nextTurn 0 ([],[])
 
