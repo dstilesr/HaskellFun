@@ -4,7 +4,6 @@ import Posutils
 import System.IO
 
 
-
 -- Movimientos posibles
 validMoves :: [String]
 validMoves = ["ul", "u", "ur",
@@ -57,7 +56,11 @@ wonGame ps = foldl (\b qs -> b || containedIn qs ps) False winMoves
 winMsg :: Int -> IO ()
 winMsg nm = displayMsg ("Congratulations! Player " ++ pl ++ " wins!\n")
           where pl = if mod nm 2 == 0 then "X" else "O"
-               
+
+checkWin :: Int -> ([Pos], [Pos]) -> Bool
+checkWin n (xs, os) = wonGame ms
+                  where ms = if mod n 2 == 0 then xs else os
+
 failMsg :: String
 failMsg = "Invalid move!\nValid moves:\n\
 \ul u ur\nl c r\ndl d dr\n\
@@ -71,11 +74,6 @@ turnPrompt n = if (mod n 2) == 0
 
 addMove :: Int -> Pos -> ([Pos], [Pos]) -> ([Pos], [Pos])
 addMove n p (xs, os) = if mod n 2 == 0 then (p:xs, os) else (xs, p:os)
-
-
-checkWin :: Int -> ([Pos], [Pos]) -> Bool
-checkWin n (xs, os) = wonGame ms
-                  where ms = if mod n 2 == 0 then xs else os
 
 nextTurn :: Int -> ([Pos], [Pos]) -> IO ()
 nextTurn n (xs, os) = do
@@ -113,11 +111,9 @@ showBoard = do clearScreen
                seqn (map putStrLn board)
                gotoPoint (1,7)
 
-
 -- Mostrar xs u os en el tablero
 placeChars :: Char -> [Pos] -> IO ()
 placeChars c ps = seqn (map (\p -> writeAt p [c]) ps) 
-
 
 -- Mostrar un mensaje en la 'consola' (bajo el tablero)
 displayMsg :: String -> IO()
