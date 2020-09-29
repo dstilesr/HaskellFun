@@ -9,8 +9,7 @@ queensAttack (p1, p2) (q1, q2) = or [p1 == q1,
 
 
 newQueen :: [Queen] -> Queen -> Bool
-newQueen qs q = not $ or (map valid qs)
-                where valid = queensAttack q
+newQueen qs q = not $ or (map (queensAttack q) qs)
 
 
 numsTo :: Int -> [Int]
@@ -24,9 +23,9 @@ countSol 0 _ = 0
 countSol n qs
            | (length qs) == (n - 1) = if or (map (\i -> newQueen qs (n - 1, i)) 
                                                  (numsTo n)) then 1 else 0
-           | otherwise              = sum [countSol n $ (length qs, i):qs | 
-                                           i <- (numsTo n),
-                                           newQueen qs (length qs, i)]
+           | otherwise              = sum $ map (\i -> countSol n ((length qs, i):qs)) (
+                                            filter (\i -> newQueen qs (length qs, i))
+                                            (numsTo n)) 
 
 
 main :: IO ()
