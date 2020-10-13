@@ -6,21 +6,13 @@ import System.IO
 
 -- Movimientos posibles
 validMoves :: [String]
-validMoves = ["ul", "u", "ur",
-              "l", "c", "r",
-              "dl", "d", "dr"]
+validMoves = ["1 1", "1 2", "1 3",
+              "2 1", "2 2", "2 3",
+              "3 1", "3 2", "3 3"]
 
 moveToPos :: String -> Pos
-moveToPos cs 
-            | cs == "ul" = (2,2)
-            | cs == "u"  = (4,2)
-            | cs == "ur" = (6,2)
-            | cs == "l"  = (2,4)
-            | cs == "c"  = (4,4)
-            | cs == "r"  = (6,4)
-            | cs == "dl" = (2,6)
-            | cs == "d"  = (4,6)
-            | cs == "dr" = (6,6)
+moveToPos str = (head ints, head (tail ints)) 
+                where ints = map ((2*) . read) (words str)
 
 validInput :: String -> [Pos] -> [Pos] -> Bool
 validInput cs ps qs = case elem cs validMoves of
@@ -62,8 +54,7 @@ checkWin n (xs, os) = wonGame ms
                   where ms = if mod n 2 == 0 then xs else os
 
 failMsg :: String
-failMsg = "Invalid move!\nValid moves:\n\
-\ul u ur\nl c r\ndl d dr\n\
+failMsg = "Invalid move!\nValid moves:\n" ++ show validMoves ++"\n\
 \Do not choose squares that are already taken!"
 
 -- Turnos
